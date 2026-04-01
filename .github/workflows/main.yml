@@ -5,20 +5,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+      - name: Setup Java
+        uses: actions/setup-java@v3
         with:
-          node-version: '18'
-      - name: Install Capacitor
+          java-version: '17'
+          distribution: 'temurin'
+      - name: Install and Build
         run: |
-          npm install @capacitor/core @capacitor/cli @capacitor/android
-          npx cap add android
+          npm install
+          npx cap add android || true
           npx cap copy
-      - name: Build Android App
-        run: |
           cd android && ./gradlew assembleDebug
       - name: Upload APK
         uses: actions/upload-artifact@v3
         with:
-          name: Azkar-App-Package
+          name: Azkar-App
           path: android/app/build/outputs/apk/debug/app-debug.apk
