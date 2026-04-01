@@ -9,7 +9,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '18'
-      - name: Install Dependencies & Create Android Project
+      - name: Install Dependencies
         run: |
           npm install
           npx cap add android || true
@@ -18,7 +18,7 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-      - name: Final Build
+      - name: Build APK
         run: |
           npx cap copy
           npx cap sync
