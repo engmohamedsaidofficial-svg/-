@@ -5,16 +5,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      - name: Install Dependencies & Create Android Project
+        run: |
+          npm install
+          npx cap add android || true
       - name: Setup Java
         uses: actions/setup-java@v3
         with:
           java-version: '17'
           distribution: 'temurin'
-      - name: Install and Build
+      - name: Final Build
         run: |
-          npm install
-          npx cap add android || true
           npx cap copy
+          npx cap sync
           cd android && ./gradlew assembleDebug
       - name: Upload APK
         uses: actions/upload-artifact@v3
