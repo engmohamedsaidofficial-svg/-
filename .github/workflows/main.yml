@@ -1,28 +1,48 @@
 name: Build Android APK
-on: [push]
+
+on:
+  push:
+    branches: [ main ]
+
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v3
-      - name: Use Node.js
-        uses: actions/setup-node@v3
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: '18'
-      - name: Use Java
-        uses: actions/setup-java@v3
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build web assets (مهم جداً)
+        run: npm run build
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
         with:
-          java-version: '17'
           distribution: 'temurin'
-      - name: Build
+          java-version: '17'
+
+      - name: Add & Sync Capacitor Android
         run: |
-          npm install
           npx cap add android || true
-          npx cap copy
-          npx cap sync
-          cd android && ./gradlew assembleDebug
-      - name: Save APK
-        uses: actions/upload-artifact@v3
+          npx cap sync android
+
+      - name: Build Debug APK
+        run: |
+          cd android
+          chmod +x ./gradlew
+          ./gradlew assembleDebug --no-daemon
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
         with:
-          name: My-Azkar-App
+          name: My-Azkar-App-Debug
           path: android/app/build/outputs/apk/debug/app-debug.apk
