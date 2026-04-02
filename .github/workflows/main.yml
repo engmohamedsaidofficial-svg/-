@@ -17,24 +17,26 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install all dependencies
+      - name: Install dependencies
         run: npm install
 
-      - name: Install Capacitor packages explicitly
+      - name: Install Capacitor Android
         run: npm install @capacitor/cli @capacitor/core @capacitor/android
 
       - name: Build web assets
-        run: npm run build || echo "No build script found - skipping..."
+        run: npm run build || echo "No build script - skipping"
 
-      - name: Capacitor Doctor
-        run: npx cap doctor || true
+      - name: Capacitor Doctor + Debug
+        run: |
+          npx cap doctor || true
+          ls -la
 
       - name: Add Android platform
         run: |
-          npx cap add android || echo "Add platform attempted (may have failed silently)"
-          ls -la android || echo "❌ android folder STILL missing after add!"
+          npx cap add android || echo "Add platform attempted"
+          ls -la android || echo "❌ android folder STILL missing!"
 
-      - name: Copy & Sync Capacitor
+      - name: Sync Capacitor
         run: |
           npx cap copy android
           npx cap sync android
@@ -46,7 +48,7 @@ jobs:
             chmod +x ./gradlew
             ./gradlew assembleDebug --no-daemon --stacktrace
           else
-            echo "❌ Android folder is still missing! Cannot build APK."
+            echo "❌ Android folder missing - cannot build"
             exit 1
           fi
 
