@@ -19,9 +19,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
-
-      # تم حذف npm run build لأن www موجودة جاهزة
+        run: npm install          # غيرناها من npm ci عشان المشكلة دي
 
       - name: Setup Java
         uses: actions/setup-java@v4
