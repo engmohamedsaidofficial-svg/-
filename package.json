@@ -1,5 +1,5 @@
 {
-  "name": "azkar-app",
+  "name": "أذكار",
   "version": "1.0.0",
   "dependencies": {
     "@capacitor/android": "^5.0.0",
