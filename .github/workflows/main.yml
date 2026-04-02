@@ -23,8 +23,11 @@ jobs:
       - name: Capacitor Doctor
         run: npx cap doctor || true
 
-      - name: Add Android platform
-        run: npx cap add android || echo "Android platform already exists"
+      - name: Install Capacitor Android package (مهم)
+        run: npm install @capacitor/android
+
+      - name: Add Android platform (مع force)
+        run: npx cap add android --force || echo "Add platform attempted"
 
       - name: Sync Capacitor Android
         run: npx cap sync android
