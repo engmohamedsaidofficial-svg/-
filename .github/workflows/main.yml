@@ -20,23 +20,30 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Install Capacitor Android
+        run: npm install @capacitor/android @capacitor/cli
+
       - name: Capacitor Doctor
         run: npx cap doctor || true
 
-      - name: Install Capacitor Android package (مهم)
-        run: npm install @capacitor/android
+      - name: Add Android platform (force)
+        run: |
+          npx cap add android --force || true
+          ls -la android || echo "android folder not created!"
 
-      - name: Add Android platform (مع force)
-        run: npx cap add android --force || echo "Add platform attempted"
-
-      - name: Sync Capacitor Android
-        run: npx cap sync android
+      - name: Sync Capacitor
+        run: npx cap sync android --deployment || true
 
       - name: Build Debug APK
         run: |
-          cd android
-          chmod +x ./gradlew
-          ./gradlew assembleDebug --no-daemon --stacktrace
+          if [ -d "android" ]; then
+            cd android
+            chmod +x ./gradlew
+            ./gradlew assembleDebug --no-daemon --stacktrace
+          else
+            echo "❌ Android folder still missing!"
+            exit 1
+          fi
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
