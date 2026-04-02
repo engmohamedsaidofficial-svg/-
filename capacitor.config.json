@@ -1,1 +1,7 @@
 
+{
+  "appId": "com.azkar.app",
+  "appName": "Azkar",
+  "webDir": "www",
+  "bundledWebRuntime": false
+}
