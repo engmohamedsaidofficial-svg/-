@@ -29,21 +29,21 @@ jobs:
       - name: Install Capacitor
         run: npm install @capacitor/cli @capacitor/core @capacitor/android
 
-      - name: Add Android platform
+      - name: Add fresh Android platform
         run: npx cap add android
 
       - name: Sync Capacitor
         run: npx cap sync android
 
-      - name: Copy custom icon to all densities
+      - name: Copy custom icon (Adaptive Icon)
         run: |
-          echo "Copying custom icon..."
-          cp www/icon.png android/app/src/main/res/mipmap-hdpi/ic_launcher.png || true
-          cp www/icon.png android/app/src/main/res/mipmap-mdpi/ic_launcher.png || true
-          cp www/icon.png android/app/src/main/res/mipmap-xhdpi/ic_launcher.png || true
-          cp www/icon.png android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png || true
-          cp www/icon.png android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png || true
-          echo "Custom icon copied to all mipmap folders"
+          echo "Copying custom icon from www/icon.png..."
+          cp www/icon.png android/app/src/main/res/mipmap-hdpi/ic_launcher_foreground.png || true
+          cp www/icon.png android/app/src/main/res/mipmap-mdpi/ic_launcher_foreground.png || true
+          cp www/icon.png android/app/src/main/res/mipmap-xhdpi/ic_launcher_foreground.png || true
+          cp www/icon.png android/app/src/main/res/mipmap-xxhdpi/ic_launcher_foreground.png || true
+          cp www/icon.png android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground.png || true
+          echo "Custom icon copied successfully"
 
       - name: Build Debug APK
         run: |
