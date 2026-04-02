@@ -15,45 +15,39 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
 
       - name: Install dependencies
         run: npm install
 
-      - name: Install Capacitor Android
+      - name: Install Capacitor
         run: npm install @capacitor/cli @capacitor/core @capacitor/android
 
-      - name: Build web assets
-        run: npm run build || echo "No build script - skipping"
+      - name: Remove old android folder (مهم جداً)
+        run: rm -rf android
 
-      - name: Capacitor Doctor + Debug
-        run: |
-          npx cap doctor || true
-          ls -la
-
-      - name: Add Android platform
-        run: |
-          npx cap add android || echo "Add platform attempted"
-          ls -la android || echo "❌ android folder STILL missing!"
+      - name: Add Android platform fresh
+        run: npx cap add android
 
       - name: Sync Capacitor
         run: |
           npx cap copy android
           npx cap sync android
 
-      - name: Build Debug APK
+      - name: Build Debug APK (with full stacktrace)
         run: |
-          if [ -d "android" ]; then
-            cd android
-            chmod +x ./gradlew
-            ./gradlew assembleDebug --no-daemon --stacktrace
-          else
-            echo "❌ Android folder missing - cannot build"
-            exit 1
-          fi
+          cd android
+          chmod +x ./gradlew
+          ./gradlew assembleDebug --no-daemon --stacktrace --info
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: My-Azkar-App-Debug
+          name: Azkar-App-Debug
           path: android/app/build/outputs/apk/debug/app-debug.apk
