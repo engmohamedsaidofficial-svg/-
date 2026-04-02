@@ -20,21 +20,10 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Install Capacitor Android
-        run: npm install @capacitor/cli @capacitor/core @capacitor/android
-
-      - name: Build web assets
-        run: npm run build || echo "No build script - skipping"
-
-      - name: Capacitor Doctor + Debug
-        run: |
-          npx cap doctor || true
-          ls -la
-
       - name: Add Android platform
         run: |
           npx cap add android || echo "Add platform attempted"
-          ls -la android || echo "❌ android folder STILL missing!"
+          ls -la android || echo "❌ android folder missing!"
 
       - name: Sync Capacitor
         run: |
@@ -48,12 +37,12 @@ jobs:
             chmod +x ./gradlew
             ./gradlew assembleDebug --no-daemon --stacktrace
           else
-            echo "❌ Android folder missing - cannot build"
+            echo "❌ Android folder missing!"
             exit 1
           fi
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: My-Azkar-App-Debug
+          name: Azkar-App-Debug
           path: android/app/build/outputs/apk/debug/app-debug.apk
