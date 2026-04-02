@@ -29,21 +29,23 @@ jobs:
       - name: Install Capacitor
         run: npm install @capacitor/cli @capacitor/core @capacitor/android
 
-      - name: Add fresh Android platform
+      - name: Add Android platform
         run: npx cap add android
 
-      - name: Copy web assets & Sync
+      - name: Sync Capacitor
         run: |
           npx cap copy android
           npx cap sync android
 
-      - name: Replace app icon with your custom icon.png
+      - name: Replace launcher icon with custom icon.png
         run: |
+          # نسخ الأيقونة لكل الأحجام
           cp www/icon.png android/app/src/main/res/mipmap-hdpi/ic_launcher.png || true
           cp www/icon.png android/app/src/main/res/mipmap-mdpi/ic_launcher.png || true
           cp www/icon.png android/app/src/main/res/mipmap-xhdpi/ic_launcher.png || true
           cp www/icon.png android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png || true
           cp www/icon.png android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png || true
+          echo "Custom icon copied successfully"
 
       - name: Build Debug APK
         run: |
