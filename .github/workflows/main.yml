@@ -16,20 +16,17 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
-          # لو عندك package-lock.json في مجلد فرعي، حدد المسار هنا:
-          # cache-dependency-path: '**/package-lock.json'
 
       - name: Install dependencies
-        run: npm install   # استخدمنا npm install عشان مش محتاجين lock file
+        run: npm install
 
-      - name: Capacitor Doctor (للتشخيص)
+      - name: Capacitor Doctor
         run: npx cap doctor || true
 
-      - name: Add Android platform if needed
-        run: npx cap add android || echo "Android already added"
+      - name: Add Android platform
+        run: npx cap add android || echo "Android platform already exists"
 
-      - name: Sync Capacitor
+      - name: Sync Capacitor Android
         run: npx cap sync android
 
       - name: Build Debug APK
@@ -38,7 +35,7 @@ jobs:
           chmod +x ./gradlew
           ./gradlew assembleDebug --no-daemon --stacktrace
 
-      - name: Upload APK Artifact
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: My-Azkar-App-Debug
