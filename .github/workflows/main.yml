@@ -23,18 +23,18 @@ jobs:
       - name: Install Capacitor packages explicitly
         run: npm install @capacitor/cli @capacitor/core @capacitor/android
 
-      - name: Build web assets (مهم جداً)
-        run: npm run build || echo "No build script, skipping..."
+      - name: Build web assets
+        run: npm run build || echo "No build script found - skipping..."
 
       - name: Capacitor Doctor
         run: npx cap doctor || true
 
-      - name: Add Android platform with more debug
+      - name: Add Android platform
         run: |
-          npx cap add android --force
+          npx cap add android || echo "Add platform attempted (may have failed silently)"
           ls -la android || echo "❌ android folder STILL missing after add!"
 
-      - name: Copy web assets & Sync
+      - name: Copy & Sync Capacitor
         run: |
           npx cap copy android
           npx cap sync android
@@ -46,7 +46,7 @@ jobs:
             chmod +x ./gradlew
             ./gradlew assembleDebug --no-daemon --stacktrace
           else
-            echo "❌ Android folder is still missing! Cannot build."
+            echo "❌ Android folder is still missing! Cannot build APK."
             exit 1
           fi
 
