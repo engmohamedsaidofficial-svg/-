@@ -29,19 +29,27 @@ jobs:
       - name: Install Capacitor
         run: npm install @capacitor/cli @capacitor/core @capacitor/android
 
-      - name: Install Local Notifications plugin
-        run: npm install @capacitor/local-notifications
-
       - name: Add fresh Android platform
         run: npx cap add android
 
       - name: Sync Capacitor
         run: npx cap sync android
 
+      # ←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←
       - name: Add notification permissions to AndroidManifest
         run: |
-          sed -i 's|<uses-permission android:name="android.permission.INTERNET"/>|<uses-permission android:name="android.permission.INTERNET"/>\n    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>\n    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>\n    <uses-permission android:name="android.permission.VIBRATE"/>|' \
-          android/app/src/main/AndroidManifest.xml
+          MANIFEST="android/app/src/main/AndroidManifest.xml"
+          
+          echo "🔍 Checking manifest before adding permissions..."
+          grep -E 'POST_NOTIFICATIONS|RECEIVE_BOOT_COMPLETED|VIBRATE|SCHEDULE_EXACT_ALARM|INTERNET' "$MANIFEST" || true
+          
+          # إضافة كل الإذونات المطلوبة للإشعارات والأذان
+          sed -i '/<uses-permission android:name="android.permission.INTERNET"/a\    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />\n    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />\n    <uses-permission android:name="android.permission.VIBRATE" />\n    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />' "$MANIFEST"
+          
+          echo "✅ Permissions added successfully!"
+          echo "📋 Final permissions in manifest:"
+          grep -E 'POST_NOTIFICATIONS|RECEIVE_BOOT_COMPLETED|VIBRATE|SCHEDULE_EXACT_ALARM' "$MANIFEST"
+      # ←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←
 
       - name: Copy custom icon (Adaptive Icon)
         run: |
