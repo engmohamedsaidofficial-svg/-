@@ -2,7 +2,7 @@ name: Build Android APK
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   build:
@@ -16,25 +16,56 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: npm
 
       - name: Setup Java 17
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
-          java-version: '17'
+          distribution: temurin
+          java-version: 17
+          cache: gradle
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
-      - name: Install Capacitor
-        run: npm install @capacitor/cli @capacitor/core @capacitor/android
+      - name: Build web app
+        run: npm run build --if-present
 
-      - name: Install Local Notifications plugin
-        run: npm install @capacitor/local-notifications
+      - name: Install Capacitor packages
+        run: npm install @capacitor/cli @capacitor/core @capacitor/android @capacitor/local-notifications
 
       - name: Sync Android platform
         run: npx cap sync android
 
       - name: Add notification permissions to AndroidManifest
         run: |
-          cat > android/app/src/main/AndroidManifest.xml << 'EOF'
+          python3 - <<'PY'
+          from pathlib import Path
+
+          manifest = Path("android/app/src/main/AndroidManifest.xml")
+          text = manifest.read_text(encoding="utf-8")
+
+          permissions = '''
+              <uses-permission android:name="android.permission.INTERNET" />
+              <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+              <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+              <uses-permission android:name="android.permission.WAKE_LOCK" />
+          '''
+
+          if "android.permission.POST_NOTIFICATIONS" not in text:
+              text = text.replace(
+                  '<manifest xmlns:android="http://schemas.android.com/apk/res/android"',
+                  '<manifest xmlns:android="http://schemas.android.com/apk/res/android"\n' + permissions
+              )
+
+          manifest.write_text(text, encoding="utf-8")
+          PY
+
+      - name: Build Debug APK
+        run: cd android && ./gradlew assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
