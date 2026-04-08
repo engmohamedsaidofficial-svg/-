@@ -1,3 +1,4 @@
+```yaml
 name: Build Android APK
 
 on:
@@ -30,9 +31,11 @@ jobs:
         run: npm install @capacitor/cli @capacitor/core @capacitor/android
 
       - name: Add or Sync Android platform
-        run: npx cap sync android
+        run: |
+          rm -rf android
+          npx cap add android
+          npx cap sync android
 
-      # ✅ FIX: استخدم env variable بدل heredoc داخل YAML
       - name: Add notification permissions to AndroidManifest
         env:
           MANIFEST: |
@@ -67,16 +70,15 @@ jobs:
             </manifest>
         run: echo "$MANIFEST" > android/app/src/main/AndroidManifest.xml
 
-      # ✅ مفقودة في الكود الأصلي
       - name: Make Gradle executable
         run: chmod +x android/gradlew
 
       - name: Build Debug APK
         run: cd android && ./gradlew assembleDebug
 
-      # ✅ مفقودة في الكود الأصلي
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: app-debug
           path: android/app/build/outputs/apk/debug/app-debug.apk
+```
