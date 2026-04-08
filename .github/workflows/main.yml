@@ -29,46 +29,40 @@ jobs:
       - name: Install Capacitor
         run: npm install @capacitor/cli @capacitor/core @capacitor/android
 
-      - name: Add fresh Android platform
-        run: npx cap add android
-
-      - name: Sync Capacitor
+      - name: Add or Sync Android platform
         run: npx cap sync android
 
-      # ←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←
       - name: Add notification permissions to AndroidManifest
         run: |
-          MANIFEST="android/app/src/main/AndroidManifest.xml"
-          
-          echo "🔍 Checking manifest before adding permissions..."
-          grep -E 'POST_NOTIFICATIONS|RECEIVE_BOOT_COMPLETED|VIBRATE|SCHEDULE_EXACT_ALARM|INTERNET' "$MANIFEST" || true
-          
-          # إضافة كل الإذونات المطلوبة للإشعارات والأذان
-          sed -i '/<uses-permission android:name="android.permission.INTERNET"/a\    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />\n    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />\n    <uses-permission android:name="android.permission.VIBRATE" />\n    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />' "$MANIFEST"
-          
-          echo "✅ Permissions added successfully!"
-          echo "📋 Final permissions in manifest:"
-          grep -E 'POST_NOTIFICATIONS|RECEIVE_BOOT_COMPLETED|VIBRATE|SCHEDULE_EXACT_ALARM' "$MANIFEST"
-      # ←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←
+          cat << EOF > android/app/src/main/AndroidManifest.xml
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.azkar.app">
 
-      - name: Copy custom icon (Adaptive Icon)
-        run: |
-          echo "Copying custom icon from www/icon.png..."
-          cp www/icon.png android/app/src/main/res/mipmap-hdpi/ic_launcher_foreground.png || true
-          cp www/icon.png android/app/src/main/res/mipmap-mdpi/ic_launcher_foreground.png || true
-          cp www/icon.png android/app/src/main/res/mipmap-xhdpi/ic_launcher_foreground.png || true
-          cp www/icon.png android/app/src/main/res/mipmap-xxhdpi/ic_launcher_foreground.png || true
-          cp www/icon.png android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground.png || true
-          echo "Custom icon copied successfully"
+    <!-- Permissions for Local Notifications -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
-      - name: Build Debug APK
-        run: |
-          cd android
-          chmod +x ./gradlew
-          ./gradlew assembleDebug --no-daemon --stacktrace
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.App">
 
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: Azkar-App-Debug
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+        <activity
+            android:name="com.azkar.app.MainActivity"
+            android:exported="true"
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>
+EOF
