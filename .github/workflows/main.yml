@@ -15,45 +15,68 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
 
       - name: Install dependencies
         run: npm install
 
-      - name: Install Capacitor Android
+      - name: Install Capacitor
         run: npm install @capacitor/cli @capacitor/core @capacitor/android
 
-      - name: Build web assets
-        run: npm run build || echo "No build script - skipping"
+      - name: Add or Sync Android platform
+        run: npx cap sync android
 
-      - name: Capacitor Doctor + Debug
-        run: |
-          npx cap doctor || true
-          ls -la
+      # ✅ FIX: استخدم env variable بدل heredoc داخل YAML
+      - name: Add notification permissions to AndroidManifest
+        env:
+          MANIFEST: |
+            <?xml version="1.0" encoding="utf-8"?>
+            <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+                package="com.azkar.app">
 
-      - name: Add Android platform
-        run: |
-          npx cap add android || echo "Add platform attempted"
-          ls -la android || echo "❌ android folder STILL missing!"
+                <uses-permission android:name="android.permission.INTERNET" />
+                <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+                <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+                <uses-permission android:name="android.permission.WAKE_LOCK" />
 
-      - name: Sync Capacitor
-        run: |
-          npx cap copy android
-          npx cap sync android
+                <application
+                    android:allowBackup="true"
+                    android:icon="@mipmap/ic_launcher"
+                    android:label="@string/app_name"
+                    android:roundIcon="@mipmap/ic_launcher_round"
+                    android:supportsRtl="true"
+                    android:theme="@style/Theme.App">
+
+                    <activity
+                        android:name="com.azkar.app.MainActivity"
+                        android:exported="true"
+                        android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode">
+                        <intent-filter>
+                            <action android:name="android.intent.action.MAIN" />
+                            <category android:name="android.intent.category.LAUNCHER" />
+                        </intent-filter>
+                    </activity>
+                </application>
+
+            </manifest>
+        run: echo "$MANIFEST" > android/app/src/main/AndroidManifest.xml
+
+      # ✅ مفقودة في الكود الأصلي
+      - name: Make Gradle executable
+        run: chmod +x android/gradlew
 
       - name: Build Debug APK
-        run: |
-          if [ -d "android" ]; then
-            cd android
-            chmod +x ./gradlew
-            ./gradlew assembleDebug --no-daemon --stacktrace
-          else
-            echo "❌ Android folder missing - cannot build"
-            exit 1
-          fi
+        run: cd android && ./gradlew assembleDebug
 
-      - name: Upload APK
+      # ✅ مفقودة في الكود الأصلي
+      - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: My-Azkar-App-Debug
+          name: app-debug
           path: android/app/build/outputs/apk/debug/app-debug.apk
