@@ -58,10 +58,8 @@ jobs:
           chmod +x ./gradlew
           ./gradlew assembleDebug --no-daemon --stacktrace
 
-      - name: Upload Debug APK
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Azkar-Debug-APK-\( {{ github.run_id }}- \){{ github.run_attempt }}
+          name: Azkar-App-Debug
           path: android/app/build/outputs/apk/debug/app-debug.apk
-          overwrite: true
-          retention-days: 5
