@@ -63,3 +63,31 @@ jobs:
         with:
           name: Azkar-App-Debug
           path: android/app/build/outputs/apk/debug/app-debug.apk
+      - name: Patch AndroidManifest permissions
+        run: |
+          MANIFEST=android/app/src/main/AndroidManifest.xml
+          sed -i 's|<uses-permission android:name="android.permission.INTERNET"/>|<uses-permission android:name="android.permission.INTERNET"/>\n    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>\n    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>\n    <uses-permission android:name="android.permission.USE_EXACT_ALARM"/>\n    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>\n    <uses-permission android:name="android.permission.VIBRATE"/>|' $MANIFEST
+          echo "Manifest patched:"
+          grep "permission" $MANIFEST
+
+      - name: Copy custom icon (Adaptive Icon)
+        run: |
+          echo "Copying custom icon from www/icon.png..."
+          cp www/icon.png android/app/src/main/res/mipmap-hdpi/ic_launcher_foreground.png || true
+          cp www/icon.png android/app/src/main/res/mipmap-mdpi/ic_launcher_foreground.png || true
+          cp www/icon.png android/app/src/main/res/mipmap-xhdpi/ic_launcher_foreground.png || true
+          cp www/icon.png android/app/src/main/res/mipmap-xxhdpi/ic_launcher_foreground.png || true
+          cp www/icon.png android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground.png || true
+          echo "Custom icon copied successfully"
+
+      - name: Build Debug APK
+        run: |
+          cd android
+          chmod +x ./gradlew
+          ./gradlew assembleDebug --no-daemon --stacktrace
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Azkar-App-Debug
+          path: android/app/build/outputs/apk/debug/app-debug.apk
