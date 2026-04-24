@@ -26,21 +26,14 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Install Capacitor + Local Notifications
-        run: npm install @capacitor/cli @capacitor/core @capacitor/android @capacitor/local-notifications
+      - name: Install Capacitor
+        run: npm install @capacitor/cli @capacitor/core @capacitor/android
 
       - name: Add fresh Android platform
         run: npx cap add android
 
       - name: Sync Capacitor
         run: npx cap sync android
-
-      - name: Patch AndroidManifest permissions
-        run: |
-          MANIFEST=android/app/src/main/AndroidManifest.xml
-          sed -i 's|<uses-permission android:name="android.permission.INTERNET"/>|<uses-permission android:name="android.permission.INTERNET"/>\n    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>\n    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>\n    <uses-permission android:name="android.permission.USE_EXACT_ALARM"/>\n    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>\n    <uses-permission android:name="android.permission.VIBRATE"/>|' $MANIFEST
-          echo "Manifest patched:"
-          grep "permission" $MANIFEST
 
       - name: Copy custom icon (Adaptive Icon)
         run: |
